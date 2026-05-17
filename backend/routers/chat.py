@@ -2,7 +2,7 @@ import asyncio
 from fastapi import APIRouter, HTTPException, Depends
 from pydantic import BaseModel
 from typing import Optional
-from database import supabase 
+from database import supabase_admin
 from utils.security import verify_jwt
 
 router = APIRouter(prefix="/chat", tags=["Chat Traffic"])
@@ -25,7 +25,7 @@ async def process_chat_message(request: MessageRequest, user = Depends(verify_jw
         if not convo_id:
             # If no ID was sent, this is a brand new chat. We create it in the database first,
             # linking it to the secure user.id from our bouncer.
-            new_convo = supabase.table("conversations").insert({
+            new_convo = supabase_admin.table("conversations").insert({
                 "user_id": user.id,
                 "title": "New Chat" 
             }).execute()
@@ -34,7 +34,7 @@ async def process_chat_message(request: MessageRequest, user = Depends(verify_jw
             convo_id = new_convo.data[0]["id"]
 
         # 2. Save the User's Message
-        supabase.table("messages").insert({
+        supabase_admin.table("messages").insert({
             "conversation_id": convo_id,
             "role": "user",
             "content": request.content,
@@ -47,7 +47,7 @@ async def process_chat_message(request: MessageRequest, user = Depends(verify_jw
         mock_ai_text = "Hello! This is a mock response from the server. The AI models are currently under development."
 
 
-        supabase.table("messages").insert({
+        supabase_admin.table("messages").insert({
             "conversation_id": convo_id,
             "role": "ai",
             "content": mock_ai_text,

@@ -1,6 +1,6 @@
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from database import supabase
+from database import supabase_admin,supabase_auth
 
 # This tells FastAPI to look for the "Authorization: Bearer <token>" header
 token_auth_scheme = HTTPBearer()
@@ -14,7 +14,7 @@ def verify_jwt(credentials: HTTPAuthorizationCredentials = Depends(token_auth_sc
     
     try:
         # Supabase does the heavy lifting of verifying the signature and expiration
-        user_response = supabase.auth.get_user(token)
+        user_response = supabase_auth.auth.get_user(token)
         
         if not user_response or not user_response.user:
             raise HTTPException(

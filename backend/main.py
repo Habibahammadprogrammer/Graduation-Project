@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from routers import auth, chat,documents
+from routers import auth, chat,documents,contact
+
 
 app = FastAPI(
     title="Dyslexia AI Assistant API",
@@ -20,6 +21,7 @@ app.add_middleware(
 app.include_router(auth.router)
 app.include_router(chat.router)
 app.include_router(documents.router)
+app.include_router(contact.router)
 # 3. Simple health check
 @app.get("/")
 def read_root():

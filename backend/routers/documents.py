@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, Depends, UploadFile, File, Form
 import uuid
-from database import supabase
+from database import supabase_auth,supabase_admin
 from utils.security import verify_jwt
 
 router = APIRouter(prefix="/documents", tags=["Document Uploads"])
@@ -33,17 +33,17 @@ async def upload_document(
         unique_path = f"{user.id}/{uuid.uuid4()}.{file_ext}"
 
         # 4. Upload directly to your Supabase Storage bucket
-        supabase.storage.from_(bucket_name).upload(
+        supabase_admin.storage.from_(bucket_name).upload(
             path=unique_path,
             file=file_bytes,
             file_options={"content-type": content_type}
         )
 
         # 5. Retrieve the public URL so the AI models and frontend can see it
-        public_url = supabase.storage.from_(bucket_name).get_public_url(unique_path)
+        public_url = supabase_admin.storage.from_(bucket_name).get_public_url(unique_path)
 
         # 6. Save the metadata to your SQL database to map it to the conversation
-        doc_record = supabase.table("documents").insert({
+        doc_record = supabase_admin.table("documents").insert({
             "user_id": user.id,
             "conversation_id": conversation_id,
             "title": file.filename,
